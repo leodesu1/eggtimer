@@ -152,7 +152,7 @@
       startBtn.disabled = true; // Disable start button
       pauseBtn.disabled = false; // Enable pause button
       restartBtn.disabled = false; // Enable restart button
-      pauseBtn.textContent = 'Pause'; // Ensure pause button text is 'Pause'
+      pauseBtn.textContent = 'pause'; // Ensure pause button text is 'Pause'
 
       // Update bar and countdown immediately
       updateBar(((initialTime - time) / initialTime) * 100);
@@ -184,7 +184,7 @@
      */
     function pauseTimer() {
       isPaused = !isPaused; // Toggle the pause state
-      pauseBtn.textContent = isPaused ? 'Resume' : 'Pause'; // Change button text based on state
+      pauseBtn.textContent = isPaused ? 'resume' : 'pause'; // Change button text based on state
     }
 
     /**
@@ -196,7 +196,7 @@
       updateBar(0); // Reset progress bar
       updateCountdown(); // Reset time display
       isPaused = true; // Set to paused state initially after restart
-      pauseBtn.textContent = 'Pause'; // Reset pause button text
+      pauseBtn.textContent = 'pause'; // Reset pause button text
       startBtn.disabled = false; // Enable start button
       pauseBtn.disabled = true; // Disable pause button
       restartBtn.disabled = true; // Disable restart button
@@ -215,7 +215,7 @@
       updateCountdown(); // Update countdown display
       startBtn.disabled = false; // Enable start button
       pauseBtn.disabled = true; // Disable pause button
-      pauseBtn.textContent = 'Pause'; // Reset pause button text
+      pauseBtn.textContent = 'pause'; // Reset pause button text
       restartBtn.disabled = true; // Disable restart button
     }
 
