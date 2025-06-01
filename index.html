@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Responsive Egg Timer!🍳</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+  <style>
+    /* Custom styles for background and specific elements */
+    body {
+      font-family: 'Inter', sans-serif; /* Using Inter font */
+      background-color: #fce8d5; /* Light background color */
+      color: #5c3a2e; /* Dark brown text */ 
+ /* ADD THESE LINES FOR YOUR BACKGROUND IMAGE */
+    background: url('background.png') no-repeat center center fixed; /* Use your image name here */
+    background-size: cover;
+    }
+
+    /* Gradient for the timer bar */
+    #timerBar {
+      background-image: repeating-linear-gradient(
+        300deg,
+        #6b4c3b,
+        #6b4c3b 4px,
+        #ff8000 4px,
+        #ff8000 8px
+      );
+      transition: width 1s linear; /* Smooth transition for width changes */
+    }
+
+    /* Hide elements by default if they are controlled by JS display */
+    #timerInterface, #donePopup {
+      display: none;
+    }
+  </style>
+</head>
+<body class="flex flex-col items-center justify-center min-h-screen p-4 sm:p-6 md:p-8">
+
+  <h1 class="text-5xl sm:text-6xl font-extrabold mt-10 mb-8 text-[#5c3a2e] text-shadow-lg drop-shadow-md">
+    egg timer!🍳
+  </h1>
+
+  <div id="eggStyles" class="flex flex-col items-center justify-center gap-4 mb-10 w-full max-w-sm">
+    <button data-time="180" class="w-full py-4 px-8 text-2xl font-semibold rounded-2xl bg-[#6b4c3b] text-[#fff3e6] shadow-lg hover:bg-[#845d49] active:scale-95 transition-all duration-300">
+      ไข่ลวก (Soft-boiled)
+    </button>
+    <button data-time="420" class="w-full py-4 px-8 text-2xl font-semibold rounded-2xl bg-[#6b4c3b] text-[#fff3e6] shadow-lg hover:bg-[#845d49] active:scale-95 transition-all duration-300">
+      ยางมะตูม (Medium-boiled)
+    </button>
+    <button data-time="540" class="w-full py-4 px-8 text-2xl font-semibold rounded-2xl bg-[#6b4c3b] text-[#fff3e6] shadow-lg hover:bg-[#845d49] active:scale-95 transition-all duration-300">
+      เกือบสุก (Hard-boiled)
+    </button>
+    <button data-time="720" class="w-full py-4 px-8 text-2xl font-semibold rounded-2xl bg-[#6b4c3b] text-[#fff3e6] shadow-lg hover:bg-[#845d49] active:scale-95 transition-all duration-300">
+      สุกมาก! (Very Hard-boiled)
+    </button>
+  </div>
+
+  <h2 class="text-lg sm:text-xl font-medium text-[#5c3a2e] mb-10">
+    disclaimer: ใส่ไข่ตอนน้ำเดือดนร๊ >< 
+  </h2>
+
+  <div id="timerInterface" class="flex flex-col items-center justify-center w-full max-w-md p-4 sm:p-6 bg-white rounded-3xl shadow-xl">
+    <div id="timerBarWrapper" class="w-full h-8 border-2 border-black rounded-full overflow-hidden bg-[#fff3b0] mb-4">
+      <div id="timerBar" class="h-full w-0"></div>
+    </div>
+    <div id="timerCountdown" class="text-4xl sm:text-5xl font-mono font-bold text-[#5c3a2e] mb-6">0:00</div>
+    <div id="timerControls" class="flex flex-col items-center gap-4 w-full">
+      <button id="startBtn" class="w-full py-3 px-6 text-xl font-semibold rounded-xl bg-[#6b4c3b] text-[#fff3e6] shadow-md hover:bg-[#845d49] active:scale-95 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed">
+        Start
+      </button>
+      <button id="pauseBtn" disabled class="w-full py-3 px-6 text-xl font-semibold rounded-xl bg-[#6b4c3b] text-[#fff3e6] shadow-md hover:bg-[#845d49] active:scale-95 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed">
+        Pause
+      </button>
+      <button id="restartBtn" disabled class="w-full py-3 px-6 text-xl font-semibold rounded-xl bg-[#6b4c3b] text-[#fff3e6] shadow-md hover:bg-[#845d49] active:scale-95 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed">
+        Restart
+      </button>
+      <button id="backBtn" class="w-full py-3 px-6 text-xl font-semibold rounded-xl bg-[#6b4c3b] text-[#fff3e6] shadow-md hover:bg-[#845d49] active:scale-95 transition-all duration-300">
+        เปลี่ยนความสุก🥘 (Change doneness)
+      </button>
+    </div>
+  </div>
+
+  <button id="alarmCheckBtn" data-time="2" class="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 py-2 px-4 text-base sm:text-lg font-semibold rounded-xl bg-[#6b4c3b] text-[#fff3e6] shadow-md hover:bg-[#845d49] active:scale-95 transition-all duration-300">
+    Alarm Check
+  </button>
+
+  <audio id="alarmSound" src="alarm.wav" preload="auto"></audio>
+
+  <div id="donePopup" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+    <div class="bg-[#fff3e6] text-[#5c3a2e] border-2 border-black rounded-3xl p-8 text-center shadow-2xl max-w-sm w-full">
+      <h2 class="text-4xl font-bold mb-6">Done! 🎉</h2>
+      <button id="stopAlarmBtn" class="w-full py-3 px-6 text-xl font-semibold rounded-xl bg-[#6b4c3b] text-[#fff3e6] shadow-md hover:bg-[#845d49] active:scale-95 transition-all duration-300">
+        Stop Alarm
+      </button>
+    </div>
+  </div>
+
+  <script>
+    // Global variables for timer state
+    let countdown;
+    let time;
+    let initialTime;
+    let isPaused = false;
+
+    // Get DOM elements
+    const eggStyles = document.getElementById('eggStyles');
+    const timerInterface = document.getElementById('timerInterface');
+    const timerBar = document.getElementById('timerBar');
+    const timerCountdown = document.getElementById('timerCountdown');
+    const startBtn = document.getElementById('startBtn');
+    const pauseBtn = document.getElementById('pauseBtn');
+    const restartBtn = document.getElementById('restartBtn');
+    const backBtn = document.getElementById('backBtn');
+    const alarmSound = document.getElementById('alarmSound');
+    const donePopup = document.getElementById('donePopup');
+    const stopAlarmBtn = document.getElementById('stopAlarmBtn');
+    const alarmCheckBtn = document.getElementById('alarmCheckBtn');
+
+    /**
+     * Formats seconds into a M:SS string.
+     * @param {number} seconds - The total number of seconds.
+     * @returns {string} The formatted time string.
+     */
+    function formatTime(seconds) {
+      const m = Math.floor(seconds / 60); // Calculate minutes
+      const s = seconds % 60; // Calculate remaining seconds
+      return `${m}:${s.toString().padStart(2, '0')}`; // Pad seconds with leading zero if less than 10
+    }
+
+    /**
+     * Updates the width of the timer bar to reflect progress.
+     * @param {number} percent - The percentage of the bar to fill (0-100).
+     */
+    function updateBar(percent) {
+      timerBar.style.width = `${percent}%`;
+    }
+
+    /**
+     * Updates the countdown display with the current time.
+     */
+    function updateCountdown() {
+      timerCountdown.textContent = formatTime(time);
+    }
+
+    /**
+     * Starts or resumes the timer countdown.
+     */
+    function startTimer() {
+      if (countdown) clearInterval(countdown); // Clear any existing countdown
+      isPaused = false; // Set pause state to false
+      startBtn.disabled = true; // Disable start button
+      pauseBtn.disabled = false; // Enable pause button
+      restartBtn.disabled = false; // Enable restart button
+      pauseBtn.textContent = 'Pause'; // Ensure pause button text is 'Pause'
+
+      // Update bar and countdown immediately
+      updateBar(((initialTime - time) / initialTime) * 100);
+      updateCountdown();
+
+      // Start the interval for the countdown
+      countdown = setInterval(() => {
+        if (!isPaused) {
+          time--; // Decrement time
+          updateBar(((initialTime - time) / initialTime) * 100); // Update progress bar
+          updateCountdown(); // Update time display
+
+          if (time <= 0) {
+            clearInterval(countdown); // Stop the countdown
+            updateBar(100); // Fill the bar completely
+            updateCountdown(); // Update display to 0:00
+            alarmSound.play(); // Play the alarm sound
+            donePopup.style.display = 'flex'; // Show the "Done!" popup
+            startBtn.disabled = true; // Keep start disabled
+            pauseBtn.disabled = true; // Disable pause
+            restartBtn.disabled = true; // Disable restart
+          }
+        }
+      }, 1000); // Update every second
+    }
+
+    /**
+     * Toggles the pause state of the timer.
+     */
+    function pauseTimer() {
+      isPaused = !isPaused; // Toggle the pause state
+      pauseBtn.textContent = isPaused ? 'Resume' : 'Pause'; // Change button text based on state
+    }
+
+    /**
+     * Restarts the timer to its initial time.
+     */
+    function restartTimer() {
+      clearInterval(countdown); // Stop the current countdown
+      time = initialTime; // Reset time to initial value
+      updateBar(0); // Reset progress bar
+      updateCountdown(); // Reset time display
+      isPaused = true; // Set to paused state initially after restart
+      pauseBtn.textContent = 'Pause'; // Reset pause button text
+      startBtn.disabled = false; // Enable start button
+      pauseBtn.disabled = true; // Disable pause button
+      restartBtn.disabled = true; // Disable restart button
+    }
+
+    /**
+     * Shows the timer interface and sets up the timer with a selected time.
+     * @param {number} selectedTime - The time in seconds for the timer.
+     */
+    function showTimerInterface(selectedTime) {
+      eggStyles.style.display = 'none'; // Hide egg style selection
+      timerInterface.style.display = 'flex'; // Show timer interface
+      time = selectedTime; // Set current time
+      initialTime = selectedTime; // Store initial time
+      updateBar(0); // Reset progress bar
+      updateCountdown(); // Update countdown display
+      startBtn.disabled = false; // Enable start button
+      pauseBtn.disabled = true; // Disable pause button
+      pauseBtn.textContent = 'Pause'; // Reset pause button text
+      restartBtn.disabled = true; // Disable restart button
+    }
+
+    /**
+     * Returns to the egg style selection screen.
+     */
+    function backToEggStyles() {
+      if (countdown) clearInterval(countdown); // Clear countdown if running
+      eggStyles.style.display = 'flex'; // Show egg style selection
+      timerInterface.style.display = 'none'; // Hide timer interface
+      updateBar(0); // Reset progress bar
+      timerCountdown.textContent = '0:00'; // Reset countdown display
+      time = 0; // Reset time
+      isPaused = false; // Reset pause state
+      startBtn.disabled = false; // Enable start button
+      pauseBtn.disabled = true; // Disable pause button
+      restartBtn.disabled = true; // Disable restart button
+    }
+
+    // Event Listeners
+
+    // Handle clicks on egg style buttons
+    eggStyles.addEventListener('click', (e) => {
+      if (e.target.tagName === 'BUTTON') {
+        const selectedTime = parseInt(e.target.getAttribute('data-time'));
+        showTimerInterface(selectedTime);
+        startTimer(); // Automatically start timer when a style is selected
+      }
+    });
+
+    // Handle click on alarm check button
+    alarmCheckBtn.addEventListener('click', () => {
+      showTimerInterface(2); // Set timer for 2 seconds for alarm check
+      startTimer(); // Start the timer
+    });
+
+    // Handle clicks on timer control buttons
+    startBtn.addEventListener('click', startTimer);
+    pauseBtn.addEventListener('click', pauseTimer);
+    restartBtn.addEventListener('click', restartTimer);
+    backBtn.addEventListener('click', backToEggStyles);
+
+    // Handle click on stop alarm button in popup
+    stopAlarmBtn.addEventListener('click', () => {
+      alarmSound.pause(); // Pause the alarm sound
+      alarmSound.currentTime = 0; // Reset alarm sound to beginning
+      donePopup.style.display = 'none'; // Hide the "Done!" popup
+    });
+
+    // Initial setup when the page loads
+    updateBar(0); // Ensure timer bar is empty
+    timerCountdown.textContent = '0:00'; // Ensure countdown display is 0:00
+  </script>
+<script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/service-worker.js', { scope: './' }) // Ensure scope is correct
+          .then(registration => {
+            console.log('ServiceWorker registration successful with scope: ', registration.scope);
+          })
+          .catch(err => {
+            console.log('ServiceWorker registration failed: ', err);
+          });
+      });
+    }
+  </script>
+</body>
+</html>
